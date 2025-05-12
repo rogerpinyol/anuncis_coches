@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/anuncis.css">
+    <title>Lista de Anuncios</title>
+</head>
+<body>
+    <h1>Lista de anuncios</h1>
+
+    <!-- Formulario de búsqueda -->
+    <form action="/buscar" method="GET">
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" name="marca">
+        
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" name="modelo">
+        
+        <label for="precio">Precio máximo:</label>
+        <input type="number" id="precio" name="precio">
+        
+        <label for="any">Año:</label>
+        <input type="number" id="any" name="any">
+        
+        <button type="submit">Buscar</button>
+    </form>
+
+    <ul>
+        {% for anuncio in anuncios %}
+            <li>
+                Tipo: {{ anuncio.tipo }}, Marca: {{ anuncio.marca }}, Modelo: {{ anuncio.modelo }}, <!--los campos tipo, marca, modelo, precio, año y comentario hacen referincia al json. -->
+                Precio: {{ anuncio.precio }}€, Año: {{ anuncio.any }}, {{ anuncio.comentario }} {{anuncio.oferta}}
+            </li>
+        {% else %}
+            <li>No hay anuncios publicados.</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/publicar">Publicar un nuevo anuncio</a><br>
+    <a href="/">Volver a la página principal</a>
+</body>
+</html>

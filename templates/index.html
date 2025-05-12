@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Simulador de Cotxes</title>
+    <link rel="stylesheet" href="../static/inici.css">
+</head>
+<body>
+
+    <h1>Bienvenido al Simulador de Compra y Venta de Coches</h1>
+
+    <div class="container">
+        <form>
+            <a href="{{ url_for('anuncios') }}">
+                <button type="button">🔍 Ver anuncios</button>
+            </a>
+            <a href="{{ url_for('publicar') }}">
+                <button type="button">📤 Nuevo anuncio</button>
+            </a>
+        </form>
+    </div>
+    
+</body>
+</html>

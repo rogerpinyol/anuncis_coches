@@ -1,0 +1,7 @@
+uvicorn
+flask
+flask-sqlalchemy
+pymysql
+cryptography
+pymongo
+python-dotenv

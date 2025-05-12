@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicar Anuncio</title>
+    <link rel="stylesheet" href="../static/styles.css"> 
+</head>
+<body>
+    <div class="container">
+        <h1>Publicar un nuevo anuncio</h1>
+        <form action="/publicar" method="POST">
+            <label for="tipo">Tipo de coche:</label>
+            <select id="tipo" name="tipo" required>
+                <option value="electrico">Eléctrico</option>
+                <option value="hibrido">Híbrido</option>
+                <option value="normal">Gasolina / Diesel</option>
+            </select>
+
+            <label for="marca">Marca:</label>
+            <input type="text" id="marca" name="marca" required>
+
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" name="modelo" required>
+
+            <label for="precio">Precio:</label>
+            <input type="number" id="precio" name="precio" required>
+
+            <label for="año">Año:</label>
+            <input type="number" id="any" name="any" required>
+           
+            <label>¿Está en oferta?</label>
+            <input type="checkbox" name="oferta" value="si""> Sí
+
+            <button type="submit" class="back-link">Publicar Anuncio</button> 
+        </form>
+
+        <a href="/" class="back-link">Página principal</a>
+    </div>
+</body>
+</html>

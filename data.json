@@ -1,0 +1,53 @@
+[
+    {
+        "tipo": "gasolina/diesel",
+        "marca": "BMW",
+        "modelo": "Serie 3",
+        "precio": 5500.0,
+        "any": 2002,
+        "comentario": "⛽ Hay que contaminar menos!!!"
+    },
+    {
+        "tipo": "electrico",
+        "marca": "Tesla",
+        "modelo": "Model 3",
+        "precio": 8000.0,
+        "any": 2024,
+        "comentario": "⚡ Cero emisiones!"
+    },
+    {
+        "tipo": "hibrido",
+        "marca": "Renault",
+        "modelo": "Clio",
+        "precio": 2000.0,
+        "any": 2025,
+        "comentario": "⚡⛽ ¡Ahorra combustible!"
+    },
+    {
+        "tipo": "gasolina/diesel",
+        "marca": "Mercedes",
+        "modelo": "12",
+        "precio": 956.69,
+        "any": 211,
+        "comentario": "⛽ Hay que contaminar menos!!!",
+        "oferta": "🚀 Superoferta 21% de descuento!"
+    },
+    {
+        "tipo": "electrico",
+        "marca": "BMW",
+        "modelo": "1",
+        "precio": 9.48,
+        "any": 2005,
+        "comentario": "⚡ Cero emisiones!",
+        "oferta": "🚀 Superoferta 21% de descuento!"
+    },
+    {
+        "tipo": true,
+        "marca": "Citroen",
+        "modelo": "Berlingo",
+        "precio": 1.58,
+        "any": 22,
+        "comentario": "⛽ Hay que contaminar menos!!!",
+        "oferta": ""
+    }
+]
