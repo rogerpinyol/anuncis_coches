@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/anuncis.css">
+    <title>Historial de Precios</title>
+</head>
+<body>
+    <h1>Historial de precios para {{ cotxe.marca }} {{ cotxe.model }}</h1>
+    
+    <div class="car-details">
+        <p>Marca: {{ cotxe.marca }}</p>
+        <p>Modelo: {{ cotxe.model }}</p>
+        <p>Año: {{ cotxe.any }}</p>
+        <p>Precio actual: {{ cotxe.preu }}€</p>
+    </div>
+
+    <ul>
+        {% for precio in historial %}
+            <li>
+                <div class="price-details">
+                    <p>Fecha: {{ precio.data }}</p>
+                    <p>Precio: {{ precio.preu }}€</p>
+                </div>
+            </li>
+        {% else %}
+            <li>No hay historial de precios para este coche.</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/anuncios">Volver a la lista de anuncios</a><br>
+    <a href="/">Volver a la página principal</a>
+</body>
+</html>

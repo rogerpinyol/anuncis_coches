@@ -10,7 +10,7 @@
     <h1>Lista de anuncios</h1>
 
     <!-- Formulario de búsqueda -->
-    <form action="/buscar" method="GET">
+    <form action="/buscar" method="GET" class="search-container">
         <label for="marca">Marca:</label>
         <input type="text" id="marca" name="marca">
         
@@ -26,19 +26,33 @@
         <button type="submit">Buscar</button>
     </form>
 
-    <ul>
-        {% for anuncio in anuncios %}
-            <li>
-                Tipo: {{ anuncio.tipo }}, Marca: {{ anuncio.marca }}, Modelo: {{ anuncio.modelo }}, <!--los campos tipo, marca, modelo, precio, año y comentario hacen referincia al json. -->
-                Precio: {{ anuncio.precio }}€, Año: {{ anuncio.any }}, {{ anuncio.comentario }} {{anuncio.oferta}}
-            </li>
-        {% else %}
-            <li>No hay anuncios publicados.</li>
-        {% endfor %}
-    </ul>
+    <div class="anuncios-container">
+        <ul>
+            {% for anuncio in anuncios %}
+                <li>
+                    <div>Tipo: {{ anuncio.tipus }}, Marca: {{ anuncio.marca }}, Modelo: {{ anuncio.model }}, 
+                        Precio: {{ anuncio.preu }}€, Año: {{ anuncio.any }}, {{ anuncio.mostrar_informacion() }}</div>
+                    
+                    <div class="actions">
+                        <form action="{{ url_for('add_favorito', cotxe_id=anuncio.id) }}" method="POST">
+                            <button type="submit">Añadir a favoritos</button>
+                        </form>
+                        <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}">Hacer oferta</a>
+                        <a href="{{ url_for('ver_ofertas', cotxe_id=anuncio.id) }}">Ver ofertas</a>
+                        <a href="{{ url_for('comentarios', cotxe_id=anuncio.id) }}">Comentarios</a>
+                        <a href="{{ url_for('historial_precios', cotxe_id=anuncio.id) }}">Historial de precios</a>
+                    </div>
+                </li>
+            {% else %}
+                <li>No hay anuncios publicados.</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-    <br>
-    <a href="/publicar">Publicar un nuevo anuncio</a><br>
-    <a href="/">Volver a la página principal</a>
+    <div class="links-container">
+        <a href="/favoritos">Ver mis favoritos</a>
+        <a href="/publicar">Publicar un nuevo anuncio</a>
+        <a href="/">Volver a la página principal</a>
+    </div>
 </body>
 </html>

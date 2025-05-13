@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/anuncis.css">
-    <title>Resultados de Búsqueda</title>
+    <title>Mis Favoritos</title>
 </head>
 <body>
-    <h1>Resultados de la Búsqueda</h1>
+    <h1>Mis Coches Favoritos</h1>
 
     <ul>
         {% for anuncio in anuncios %}
             <li>
                 Tipo: {{ anuncio.tipus }}, Marca: {{ anuncio.marca }}, Modelo: {{ anuncio.model }}, 
                 Precio: {{ anuncio.preu }}€, Año: {{ anuncio.any }}, {{ anuncio.mostrar_informacion() }}
+                <div class="actions">
+                    <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}">Hacer oferta</a>
+                    <a href="{{ url_for('comentarios', cotxe_id=anuncio.id) }}">Ver comentarios</a>
+                    <a href="{{ url_for('historial_precios', cotxe_id=anuncio.id) }}">Historial de precios</a>
+                </div>
             </li>
         {% else %}
-            <li>No se encontraron anuncios con esos criterios.</li>
+            <li>No tienes coches favoritos.</li>
         {% endfor %}
     </ul>
 

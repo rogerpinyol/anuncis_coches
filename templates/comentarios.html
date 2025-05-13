@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/anuncis.css">
+    <title>Comentarios</title>
+</head>
+<body>
+    <h1>Comentarios para {{ cotxe.marca }} {{ cotxe.model }}</h1>
+    
+    <div class="car-details">
+        <p>Marca: {{ cotxe.marca }}</p>
+        <p>Modelo: {{ cotxe.model }}</p>
+        <p>Año: {{ cotxe.any }}</p>
+        <p>Precio: {{ cotxe.preu }}€</p>
+    </div>
+
+    <form action="{{ url_for('comentarios', cotxe_id=cotxe.id) }}" method="POST">
+        <label for="comentario">Nuevo comentario:</label>
+        <textarea id="comentario" name="comentario" rows="4" required></textarea>
+        <button type="submit">Publicar comentario</button>
+    </form>
+
+    <ul>
+        {% for comentario in comentarios %}
+            <li>
+                <div class="comment-details">
+                    <p>Usuario: {{ comentario.nombre_usuario }}</p>
+                    <p>Fecha: {{ comentario.data }}</p>
+                    <p>{{ comentario.comentari }}</p>
+                </div>
+            </li>
+        {% else %}
+            <li>No hay comentarios para este coche.</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/anuncios">Volver a la lista de anuncios</a><br>
+    <a href="/">Volver a la página principal</a>
+</body>
+</html>
