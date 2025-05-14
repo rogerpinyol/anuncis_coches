@@ -11,13 +11,13 @@ L'aplicació dels meus companys que he hagut de modificar estava realment molt b
 ## Implementació de les BBDD i ORM
 He implementat les bases de dades relacionals i no relacionals tal i com s'indica a l'enunciat.
 
-![taules sql](documentacio/sql.png)
+![taules sql](documentacio/sql.png)<br>
 *Mostra taules i columnes SQL*
 
-![mongo collections](documentacio/mongo_cols.png)
+![mongo collections](documentacio/mongo_cols.png)<br>
 *Col·lecions de Mongo*
 
-![mongo documents](documentacio/mongo_docs.png)
+![mongo documents](documentacio/mongo_docs.png)<br>
 *Exemple de documents de Mongo*
 
 ### (Explicació dels motius de SQL i MongoDB aquí)
@@ -49,14 +49,14 @@ La raó principal és perquè simplement volia aprendre a utilizar-lo ja que és
 
 ### Anuncis Home 
 Abans els anuncis eren només línies de text. Els he aplicat un estil de cuadrícula mostrant els detalls més importants i amb els botons d'acció necessaris (favorits, ofertes, historial, ) que no tots son visibles si no has iniciat sessió. També he afegit una barra de navegació superior 
-![anuncis home](documentacio/anuncios_home.png)
+![anuncis home](documentacio/anuncios_home.png)<br>
 *Anuncis sense iniciar sessió*
 
-![anuncis home logged](documentacio/anuncios_home_logged.png)
+![anuncis home logged](documentacio/anuncios_home_logged.png)<br>
 *Anuncis quan has iniciat sessió*
 
 També, per a gestionar els comptes, clicant al nostre perfil podem accedir de manera ràpida a les accions que tenim permeses segons el rol.
-![my account](documentacio/my_account.png)
+![my account](documentacio/my_account.png)<br>
 *El meu compte*
 
 ## Canvis fets (Backend)
