@@ -9,7 +9,7 @@ class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    password = db.Column(db.String(255))  # Increased from 100 to 255 to accommodate hashed passwords
     tipus = db.Column(db.Enum('Comprador', 'Venedor', name='tipus_usuari'))
     
     # Relacions
@@ -20,15 +20,23 @@ class Cotxe(db.Model):
     __tablename__ = 'cotxes'
     
     id = db.Column(db.Integer, primary_key=True)
-    venedor_id = db.Column(db.Integer, db.ForeignKey('usuaris.id'))
-    marca = db.Column(db.String(50))
-    model = db.Column(db.String(50))
-    any = db.Column(db.Integer)
+    marca = db.Column(db.String(100))
+    model = db.Column(db.String(100))
     preu = db.Column(db.Numeric(10, 2))
+    any = db.Column(db.Integer)
     tipus = db.Column(db.Enum('Gasolina', 'Diesel', 'Electric', 'Híbrid', name='tipus_cotxe'))
-    autonomia = db.Column(db.Integer, nullable=True)  # Només per a cotxes elèctrics/híbrids
+    venedor_id = db.Column(db.Integer, db.ForeignKey('usuaris.id'))
     
-    # "Discriminator" column que permet l'herència al servir com a base
+    # New common fields
+    eficiencia_combustible = db.Column(db.Float, nullable=True)  # L/100km
+    emisiones_co2 = db.Column(db.Float, nullable=True)  # g/km
+    
+    # Fields for electric/hybrid vehicles
+    capacidad_bateria = db.Column(db.Float, nullable=True)  # kWh
+    tiempo_carga = db.Column(db.Integer, nullable=True)  # minutes
+    salud_bateria = db.Column(db.Integer, nullable=True)  # percentage
+    
+    # Discriminator column
     type = db.Column(db.String(20))
     
     __mapper_args__ = {
@@ -36,7 +44,7 @@ class Cotxe(db.Model):
         'polymorphic_identity': 'cotxe'
     }
     
-    # Relacions
+    # Relations
     transacciones = db.relationship('Transaccion', backref='cotxe', lazy=True)
     
     def mostrar_informacion(self):

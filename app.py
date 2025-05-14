@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask_migrate import Migrate
 from models import db, Usuario, Cotxe, CotxeHybrid, CotxeElectric, Transaccion
 from mongo_db import MongoDB
 from config import Config
@@ -6,13 +7,15 @@ from dotenv import load_dotenv
 import os
 import json
 from datetime import datetime
+from auth import auth, login_required
+import requests
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'no_la_canviare_xd'
 
 # Verify database URL before initializing
 print(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
@@ -20,8 +23,14 @@ print(f"Database URL: {app.config['SQLALCHEMY_DATABASE_URI']}")
 # Initialize SQLAlchemy
 db.init_app(app)
 
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
+
 # Initialize MongoDB
 mongo = MongoDB(app)
+
+# Register the auth blueprint
+app.register_blueprint(auth, url_prefix='/auth')
 
 # Helper per a migrar la data existent de JSON a la base de dades
 def migrate_json_to_db():
@@ -94,57 +103,93 @@ def anuncios():
     return render_template("anuncios.html", anuncios=cotxes)
 
 @app.route("/publicar", methods=["GET", "POST"])
+@login_required
 def publicar():
     if request.method == "POST":
-        # Ens farà falta autenticació, de moment usarem un usuari demo
-        usuario = Usuario.query.first()
-        
         tipo = request.form["tipo"]
         marca = request.form["marca"]
         modelo = request.form["modelo"]
-        precio = float(request.form["precio"])
-        any = int(request.form["any"])
-        en_oferta = "oferta" in request.form
+        precio = request.form["precio"]
+        any = request.form["any"]
         
-        if en_oferta:
-            precio_original = precio
-            precio *= 0.79  # 21% descompte
+        # Get environmental impact data
+        eficiencia = request.form.get("eficiencia_combustible")
+        emisiones = request.form.get("emisiones_co2")
         
-        # Crear el cotxe segons el tipus
+        # Convert to proper types or None if empty
+        eficiencia = float(eficiencia) if eficiencia else None
+        emisiones = float(emisiones) if emisiones else None
+        
+        # Create the appropriate type of car
         if tipo == "electrico":
-            cotxe = CotxeElectric(
+            # Get battery data
+            capacidad = request.form.get("capacidad_bateria")
+            tiempo_carga = request.form.get("tiempo_carga")
+            salud_bateria = request.form.get("salud_bateria")
+            
+            # Convert to proper types or None if empty
+            capacidad = float(capacidad) if capacidad else None
+            tiempo_carga = int(tiempo_carga) if tiempo_carga else None
+            salud_bateria = int(salud_bateria) if salud_bateria else None
+            
+            coche = CotxeElectric(
                 marca=marca,
                 model=modelo,
                 preu=precio,
                 any=any,
                 tipus="Electric",
-                venedor_id=usuario.id if usuario else None
+                venedor_id=session["user_id"],
+                eficiencia_combustible=eficiencia,
+                emisiones_co2=emisiones,
+                capacidad_bateria=capacidad,
+                tiempo_carga=tiempo_carga,
+                salud_bateria=salud_bateria
             )
         elif tipo == "hibrido":
-            cotxe = CotxeHybrid(
+            # Get battery data
+            capacidad = request.form.get("capacidad_bateria")
+            tiempo_carga = request.form.get("tiempo_carga")
+            salud_bateria = request.form.get("salud_bateria")
+            combustible_tipo = request.form.get("combustible_tipo", "Gasolina")
+            
+            # Convert to proper types or None if empty
+            capacidad = float(capacidad) if capacidad else None
+            tiempo_carga = int(tiempo_carga) if tiempo_carga else None
+            salud_bateria = int(salud_bateria) if salud_bateria else None
+            
+            coche = CotxeHybrid(
                 marca=marca,
                 model=modelo,
                 preu=precio,
                 any=any,
                 tipus="Híbrid",
-                venedor_id=usuario.id if usuario else None
+                venedor_id=session["user_id"],
+                eficiencia_combustible=eficiencia,
+                emisiones_co2=emisiones,
+                capacidad_bateria=capacidad,
+                tiempo_carga=tiempo_carga,
+                salud_bateria=salud_bateria
             )
-        else:
-            cotxe = Cotxe(
+        else:  # normal (gasolina/diesel)
+            combustible_tipo = request.form.get("combustible_tipo", "Gasolina")
+            coche = Cotxe(
                 marca=marca,
                 model=modelo,
                 preu=precio,
                 any=any,
-                tipus="Gasolina",
-                venedor_id=usuario.id if usuario else None
+                tipus=combustible_tipo,
+                venedor_id=session["user_id"],
+                eficiencia_combustible=eficiencia,
+                emisiones_co2=emisiones
             )
         
-        db.session.add(cotxe)
+        db.session.add(coche)
         db.session.commit()
         
-        # Afegir a l'històric de preus a MongoDB
-        mongo.add_preu_history(cotxe.id, float(cotxe.preu))
-            
+        # Add initial price to history
+        mongo.add_preu_history(coche.id, float(precio))
+        
+        flash("Anuncio publicado correctamente")
         return redirect(url_for("anuncios"))
         
     return render_template("publicar.html")
@@ -172,11 +217,62 @@ def buscar():
     
     return render_template("buscar.html", anuncios=resultados)
 
+@app.route("/coche/<int:cotxe_id>")
+def detalle_coche(cotxe_id):
+    cotxe = Cotxe.query.get_or_404(cotxe_id)
+    
+    # Get offers with user information
+    ofertas = mongo.get_ofertes(cotxe_id)
+    for oferta in ofertas:
+        usuario = Usuario.query.get(oferta['usuari_id'])
+        oferta['nombre_usuario'] = usuario.nom if usuario else "Usuario desconocido"
+        
+        # Format date
+        if 'data' in oferta and oferta['data']:
+            # Handle string dates or datetime objects
+            if isinstance(oferta['data'], str):
+                try:
+                    date_obj = datetime.fromisoformat(oferta['data'].replace('Z', '+00:00'))
+                    oferta['data'] = date_obj.strftime("%d/%m/%Y %H:%M")
+                except ValueError:
+                    # If date format is not ISO
+                    pass
+            else:
+                oferta['data'] = oferta['data'].strftime("%d/%m/%Y %H:%M")
+    
+    # Get comments with user information
+    comentarios = mongo.get_comentaris(cotxe_id)
+    for comentario in comentarios:
+        usuario = Usuario.query.get(comentario['usuari_id'])
+        comentario['nombre_usuario'] = usuario.nom if usuario else "Usuario desconocido"
+        
+        # Format date
+        if 'data' in comentario and comentario['data']:
+            # Handle string dates or datetime objects
+            if isinstance(comentario['data'], str):
+                try:
+                    date_obj = datetime.fromisoformat(comentario['data'].replace('Z', '+00:00'))
+                    comentario['data'] = date_obj.strftime("%d/%m/%Y %H:%M") 
+                except ValueError:
+                    # If date format is not ISO
+                    pass
+            else:
+                comentario['data'] = comentario['data'].strftime("%d/%m/%Y %H:%M")
+    
+    # Add this to pass the API key to the template
+    api_key = os.getenv('OPENCHARGE_API_KEY')
+    
+    return render_template("detalle_coche.html", 
+                         cotxe=cotxe,
+                         ofertas=ofertas,
+                         comentarios=comentarios,
+                         api_key=api_key)
+
 # MongoDB functionality routes
 @app.route("/favorito/add/<int:cotxe_id>", methods=["POST"])
+@login_required
 def add_favorito(cotxe_id):
-    # Això requeriria autenticació d'usuari
-    usuario_id = 1  # Demo user de moment
+    usuario_id = session['user_id']  # Get logged in user's ID
     
     mongo.add_favorit(usuario_id, cotxe_id)
     flash("Coche añadido a favoritos")
@@ -184,9 +280,9 @@ def add_favorito(cotxe_id):
     return redirect(url_for("anuncios"))
 
 @app.route("/favoritos")
+@login_required
 def ver_favoritos():
-    # Això requeriria autenticació d'usuari
-    usuario_id = 1  # Demo user
+    usuario_id = session['user_id']  # Get logged in user's ID
     
     favoritos_ids = mongo.get_favorits(usuario_id)
     favoritos = Cotxe.query.filter(Cotxe.id.in_(favoritos_ids)).all() if favoritos_ids else []
@@ -194,46 +290,59 @@ def ver_favoritos():
     return render_template("favoritos.html", anuncios=favoritos)
 
 @app.route("/oferta/<int:cotxe_id>", methods=["GET", "POST"])
+@login_required
 def hacer_oferta(cotxe_id):
     cotxe = Cotxe.query.get_or_404(cotxe_id)
     
+    # Check if user is trying to make an offer on their own car
+    if cotxe.venedor_id == session['user_id']:
+        flash("No puedes hacer ofertas en tus propios anuncios")
+        return redirect(url_for('anuncios'))
+    
     if request.method == "POST":
-        # Això requeriria autenticació d'usuari
-        usuario_id = 1  # Demo user 
+        usuario_id = session['user_id']
         oferta = float(request.form["oferta"])
         
         mongo.add_oferta(cotxe_id, usuario_id, oferta)
         flash("Oferta enviada correctamente")
-        
-        return redirect(url_for("anuncios"))
+        return redirect(url_for('ver_ofertas', cotxe_id=cotxe_id))
     
     return render_template("hacer_oferta.html", cotxe=cotxe)
 
 @app.route("/ofertas/<int:cotxe_id>")
+@login_required
 def ver_ofertas(cotxe_id):
     cotxe = Cotxe.query.get_or_404(cotxe_id)
     ofertas = mongo.get_ofertes(cotxe_id)
     
-    # Obtenir user info per cada oferta
+    # Get user information for each offer
     for oferta in ofertas:
         usuario = Usuario.query.get(oferta['usuari_id'])
         oferta['nombre_usuario'] = usuario.nom if usuario else "Usuario desconocido"
     
-    return render_template("ofertas.html", cotxe=cotxe, ofertas=ofertas)
+    # Check if current user is the seller
+    is_seller = cotxe.venedor_id == session['user_id']
+    
+    return render_template("ofertas.html", cotxe=cotxe, ofertas=ofertas, is_seller=is_seller)
 
 @app.route("/aceptar-oferta/<int:cotxe_id>/<int:usuari_id>", methods=["POST"])
+@login_required
 def aceptar_oferta(cotxe_id, usuari_id):
     cotxe = Cotxe.query.get_or_404(cotxe_id)
-    ofertas = mongo.get_ofertes(cotxe_id)
     
-    # Buscar oferta concreta
+    # Validate that the current user is the seller
+    if cotxe.venedor_id != session['user_id']:
+        flash("No tienes permiso para aceptar ofertas en este anuncio")
+        return redirect(url_for('anuncios'))
+    
+    ofertas = mongo.get_ofertes(cotxe_id)
     oferta = next((o for o in ofertas if o['usuari_id'] == usuari_id), None)
     
     if oferta:
         # Update offer status
         mongo.update_oferta_status(cotxe_id, usuari_id, 'Acceptada')
         
-        # Crear transacció
+        # Create transaction
         transaccion = Transaccion(
             comprador_id=usuari_id,
             cotxe_id=cotxe_id,
@@ -246,35 +355,82 @@ def aceptar_oferta(cotxe_id, usuari_id):
     else:
         flash("Oferta no encontrada")
     
-    return redirect(url_for("ver_ofertas", cotxe_id=cotxe_id))
+    return redirect(url_for('ver_ofertas', cotxe_id=cotxe_id))
 
 @app.route("/historial-precios/<int:cotxe_id>")
 def historial_precios(cotxe_id):
     cotxe = Cotxe.query.get_or_404(cotxe_id)
     historial = mongo.get_preu_history(cotxe_id)
     
+    # Format dates
+    for item in historial:
+        if 'data' in item and item['data']:
+            # Handle string dates or datetime objects
+            if isinstance(item['data'], str):
+                try:
+                    date_obj = datetime.fromisoformat(item['data'].replace('Z', '+00:00'))
+                    item['data'] = date_obj.strftime("%d/%m/%Y %H:%M")
+                except ValueError:
+                    # If date format is not ISO
+                    pass
+            else:
+                item['data'] = item['data'].strftime("%d/%m/%Y %H:%M")
+    
     return render_template("historial_precios.html", cotxe=cotxe, historial=historial)
 
-@app.route("/comentarios/<int:cotxe_id>", methods=["GET", "POST"])
+@app.route("/comentarios/<int:cotxe_id>", methods=["POST"])
+@login_required
 def comentarios(cotxe_id):
-    cotxe = Cotxe.query.get_or_404(cotxe_id)
-    
     if request.method == "POST":
-
-        usuario_id = 1  # Demo user
+        usuario_id = session['user_id']
         comentario = request.form["comentario"]
         
-        mongo.add_comentari(cotxe_id, usuario_id, comentario)
-        flash("Comentario añadido correctamente")
+        # Current timestamp
+        current_time = datetime.now()
+        # Format for display
+        formatted_date = current_time.strftime("%d/%m/%Y %H:%M")
         
-    comentarios = mongo.get_comentaris(cotxe_id)
+        # Store original datetime in MongoDB
+        mongo.add_comentari(cotxe_id, usuario_id, comentario)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Return JSON response for AJAX requests with formatted date
+            usuario = Usuario.query.get(usuario_id)
+            return jsonify({
+                'nombre_usuario': usuario.nom,
+                'comentari': comentario,
+                'data': formatted_date
+            })
+            
+        flash("Comentario añadido correctamente")
+        return redirect(url_for('detalle_coche', cotxe_id=cotxe_id))
+
+@app.route("/api/charging-stations")
+def get_charging_stations():
+    lat = request.args.get('latitude')
+    lng = request.args.get('longitude')
+    api_key = os.getenv('OPENCHARGE_API_KEY')
     
-    # Obtindre informació de l'usuari per a cada comentari
-    for comentario in comentarios:
-        usuario = Usuario.query.get(comentario['usuari_id'])
-        comentario['nombre_usuario'] = usuario.nom if usuario else "Usuario desconocido"
+    url = f"https://api.openchargemap.io/v3/poi/"
+    params = {
+        'output': 'json',
+        'countrycode': 'ES',
+        'latitude': lat,
+        'longitude': lng,
+        'distance': 10,
+        'distanceunit': 'KM',
+        'maxresults': 20,
+        'compact': True,
+        'verbose': False,
+        'key': api_key
+    }
     
-    return render_template("comentarios.html", cotxe=cotxe, comentarios=comentarios)
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raises an HTTPError for bad responses (4xx, 5xx)
+        return jsonify(response.json())
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
     with app.app_context():

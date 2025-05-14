@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cotxe.marca }} {{ cotxe.model }}{% endblock %}
+
+{% block content %}
+<div class="car-detail-container">
+    <div class="car-header">
+        <h1>{{ cotxe.marca }} {{ cotxe.model }}</h1>
+        <div class="header-actions">
+            <span class="car-type">{{ cotxe.tipus }}</span>
+            {% if 'user_id' in session %}
+                <form action="{{ url_for('add_favorito', cotxe_id=cotxe.id) }}" method="POST" class="favorite-form">
+                    <button type="submit" class="action-button favorite">⭐ Añadir a favoritos</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="car-grid">
+        <!-- Basic Information -->
+        <div class="info-card">
+            <h2>Información Básica</h2>
+            <p><strong>Año:</strong> {{ cotxe.any }}</p>
+            <p><strong>Precio:</strong> {{ cotxe.preu }}€</p>
+            <p><strong>Tipo:</strong> {{ cotxe.tipus }}</p>
+        </div>
+
+        <!-- Environmental Impact -->
+        <div class="info-card">
+            <h2>Impacto Ambiental</h2>
+            {% if cotxe.eficiencia_combustible is not none %}
+                <p><strong>Eficiencia:</strong> {{ cotxe.eficiencia_combustible }} L/100km</p>
+            {% else %}
+                <p><strong>Eficiencia:</strong> No disponible</p>
+            {% endif %}
+            
+            {% if cotxe.emisiones_co2 is not none %}
+                <p><strong>Emisiones CO2:</strong> {{ cotxe.emisiones_co2 }} g/km</p>
+            {% else %}
+                <p><strong>Emisiones CO2:</strong> No disponible</p>
+            {% endif %}
+        </div>
+
+        <!-- Battery Information (for electric/hybrid) -->
+        {% if cotxe.type in ['electrico', 'hibrido'] %}
+        <div class="info-card">
+            <h2>Información de Batería</h2>
+            {% if cotxe.capacidad_bateria is not none %}
+                <p><strong>Capacidad:</strong> {{ cotxe.capacidad_bateria }} kWh</p>
+            {% else %}
+                <p><strong>Capacidad:</strong> No disponible</p>
+            {% endif %}
+
+            {% if cotxe.tiempo_carga is not none %}
+                <p><strong>Tiempo de carga:</strong> {{ cotxe.tiempo_carga }} minutos</p>
+            {% else %}
+                <p><strong>Tiempo de carga:</strong> No disponible</p>
+            {% endif %}
+
+            {% if cotxe.salud_bateria is not none %}
+                <div class="battery-health">
+                    <strong>Salud de la batería:</strong>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ cotxe.salud_bateria }}%"></div>
+                    </div>
+                    <span>{{ cotxe.salud_bateria }}%</span>
+                </div>
+            {% else %}
+                <p><strong>Salud de la batería:</strong> No disponible</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Future: Charging Stations Map -->
+        {% if cotxe.type == 'electrico' %}
+        <div class="info-card full-width">
+            <h2>Estaciones de Carga Cercanas</h2>
+            <div id="charging-map" style="height: 400px; width: 100%; border-radius: 10px;"></div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Interaction sections -->
+    <div class="interaction-sections">
+        <!-- Offers Section -->
+        <div class="info-card offers-section">
+            <div class="section-header">
+                <h2>Ofertas</h2>
+                {% if 'user_id' in session and session['user_id'] != cotxe.venedor_id %}
+                    <a href="{{ url_for('hacer_oferta', cotxe_id=cotxe.id) }}" class="action-button offer">💰 Hacer oferta</a>
+                {% endif %}
+            </div>
+            
+            <div class="offers-list">
+                {% if ofertas %}
+                    {% for oferta in ofertas %}
+                        <div class="offer-card">
+                            <p><strong>{{ oferta.nombre_usuario }}</strong></p>
+                            <p>{{ oferta.preu_ofert }}€</p>
+                            <p>{{ oferta.estat }}</p>
+                            <p>{{ oferta.data }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-message">No hay ofertas todavía</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="info-card comments-section">
+            <div class="section-header">
+                <h2>Comentarios</h2>
+                {% if 'user_id' in session %}
+                    <button class="action-button" onclick="toggleCommentForm()">💬 Nuevo comentario</button>
+                {% endif %}
+            </div>
+
+            <form id="commentForm" class="comment-form" style="display: none;" action="{{ url_for('comentarios', cotxe_id=cotxe.id) }}" method="POST">
+                <textarea name="comentario" required></textarea>
+                <button type="submit" class="action-button">Enviar comentario</button>
+            </form>
+
+            <div class="comments-list">
+                {% if comentarios %}
+                    {% for comentario in comentarios %}
+                        <div class="comment-card">
+                            <p><strong>{{ comentario.nombre_usuario }}</strong></p>
+                            <p>{{ comentario.comentari }}</p>
+                            <p class="comment-date">{{ comentario.data }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-message">No hay comentarios todavía</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+function toggleCommentForm() {
+    const form = document.getElementById('commentForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+document.getElementById('commentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const response = await fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    });
+    
+    if (response.ok) {
+        const result = await response.json();
+        
+        // Add new comment to the list
+        const commentsList = document.querySelector('.comments-list');
+        const newComment = document.createElement('div');
+        newComment.className = 'comment-card';
+        newComment.innerHTML = `
+            <p><strong>${result.nombre_usuario}</strong></p>
+            <p>${result.comentari}</p>
+            <p class="comment-date">${result.data}</p>
+        `;
+        
+        // Add at the beginning of the list
+        commentsList.insertBefore(newComment, commentsList.firstChild);
+        
+        // Clear and hide form
+        this.reset();
+        this.style.display = 'none';
+    }
+});
+
+// Initialize the map
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('charging-map')) {
+        // Set default location (Barcelona)
+        const defaultLat = 41.3874;
+        const defaultLng = 2.1686;
+
+        try {
+            // Initialize map
+            const map = L.map('charging-map').setView([defaultLat, defaultLng], 12);
+            console.log('Map initialized');
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Get user's location if available
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    map.setView([userLat, userLng], 12);
+                    
+                    // Fetch charging stations near user location
+                    fetchChargingStations(userLat, userLng, map);
+                }, function(error) {
+                    // If geolocation fails, use default location
+                    console.log('Geolocation failed, using default location');
+                    fetchChargingStations(defaultLat, defaultLng, map);
+                });
+            } else {
+                // If geolocation not supported, use default location
+                fetchChargingStations(defaultLat, defaultLng, map);
+            }
+        } catch (error) {
+            console.error('Error initializing map:', error);
+            document.getElementById('charging-map').innerHTML = 
+                "<p class='error-message'>Error al cargar el mapa. Por favor, recargue la página.</p>";
+        }
+    }
+});
+
+function fetchChargingStations(lat, lng, map) {
+    const url = `/api/charging-stations?latitude=${lat}&longitude=${lng}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Charging stations found:', data.length);
+            data.forEach(station => {
+                if (station.AddressInfo && station.AddressInfo.Latitude && station.AddressInfo.Longitude) {
+                    const marker = L.marker([
+                        station.AddressInfo.Latitude,
+                        station.AddressInfo.Longitude
+                    ]).addTo(map);
+
+                    const popupContent = `
+                        <strong>${station.AddressInfo.Title}</strong><br>
+                        ${station.AddressInfo.AddressLine1 || ''}<br>
+                        ${station.AddressInfo.Town || ''}<br>
+                        <small>Conectores disponibles: ${station.Connections ? station.Connections.length : 0}</small>
+                    `;
+                    marker.bindPopup(popupContent);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching charging stations:', error);
+            document.getElementById('charging-map').innerHTML = 
+                "<p class='error-message'>Error al cargar las estaciones de carga.</p>";
+        });
+}
+</script>
+{% endblock %}

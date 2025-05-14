@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/anuncis.css">
-    <title>Comentarios</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Comentarios{% endblock %}
+
+{% block content %}
+<div class="container">
     <h1>Comentarios para {{ cotxe.marca }} {{ cotxe.model }}</h1>
     
-    <div class="car-details">
+    <div class="card">
+        <h2>Detalles del coche</h2>
         <p>Marca: {{ cotxe.marca }}</p>
         <p>Modelo: {{ cotxe.model }}</p>
         <p>Año: {{ cotxe.any }}</p>
@@ -17,27 +15,21 @@
     </div>
 
     <form action="{{ url_for('comentarios', cotxe_id=cotxe.id) }}" method="POST">
-        <label for="comentario">Nuevo comentario:</label>
+        <h2>Nuevo comentario</h2>
         <textarea id="comentario" name="comentario" rows="4" required></textarea>
         <button type="submit">Publicar comentario</button>
     </form>
 
-    <ul>
+    {% if comentarios %}
         {% for comentario in comentarios %}
-            <li>
-                <div class="comment-details">
-                    <p>Usuario: {{ comentario.nombre_usuario }}</p>
-                    <p>Fecha: {{ comentario.data }}</p>
-                    <p>{{ comentario.comentari }}</p>
-                </div>
-            </li>
-        {% else %}
-            <li>No hay comentarios para este coche.</li>
+            <div class="card">
+                <p><strong>{{ comentario.nombre_usuario }}</strong></p>
+                <p>{{ comentario.data }}</p>
+                <p>{{ comentario.comentari }}</p>
+            </div>
         {% endfor %}
-    </ul>
-
-    <br>
-    <a href="/anuncios">Volver a la lista de anuncios</a><br>
-    <a href="/">Volver a la página principal</a>
-</body>
-</html>
+    {% else %}
+        <p>No hay comentarios para este coche.</p>
+    {% endif %}
+</div>
+{% endblock %}

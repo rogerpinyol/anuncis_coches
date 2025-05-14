@@ -7,19 +7,47 @@
     <link rel="stylesheet" href="../static/inici.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <h1>Bienvenido al Simulador de Compra y Venta de Coches</h1>
 
     <div class="container">
-        <form>
-            <a href="{{ url_for('anuncios') }}">
-                <button type="button">🔍 Ver anuncios</button>
-            </a>
-            <a href="{{ url_for('publicar') }}">
-                <button type="button">📤 Nuevo anuncio</button>
-            </a>
-        </form>
+        {% if 'user_id' in session %}
+            <form>
+                <a href="{{ url_for('anuncios') }}">
+                    <button type="button">🔍 Ver anuncios</button>
+                </a>
+                {% if session['user_tipus'] == 'Venedor' %}
+                    <a href="{{ url_for('publicar') }}">
+                        <button type="button">📤 Nuevo anuncio</button>
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('ver_favoritos') }}">
+                    <button type="button">⭐ Mis favoritos</button>
+                </a>
+                <a href="{{ url_for('auth.logout') }}">
+                    <button type="button">🚪 Cerrar sesión</button>
+                </a>
+            </form>
+        {% else %}
+            <form>
+                <a href="{{ url_for('auth.login') }}">
+                    <button type="button">🔑 Iniciar sesión</button>
+                </a>
+                <a href="{{ url_for('auth.register') }}">
+                    <button type="button">📝 Registrarse</button>
+                </a>
+                <a href="{{ url_for('anuncios') }}">
+                    <button type="button">🔍 Ver anuncios</button>
+                </a>
+            </form>
+        {% endif %}
     </div>
-    
 </body>
 </html>

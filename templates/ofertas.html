@@ -1,44 +1,36 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/anuncis.css">
-    <title>Ofertas Recibidas</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Ofertas{% endblock %}
+
+{% block content %}
+<div class="container">
     <h1>Ofertas para {{ cotxe.marca }} {{ cotxe.model }}</h1>
     
-    <div class="car-details">
+    <div class="card">
+        <h2>Detalles del coche</h2>
         <p>Marca: {{ cotxe.marca }}</p>
         <p>Modelo: {{ cotxe.model }}</p>
         <p>Año: {{ cotxe.any }}</p>
         <p>Precio actual: {{ cotxe.preu }}€</p>
     </div>
 
-    <ul>
+    {% if ofertas %}
         {% for oferta in ofertas %}
-            <li>
-                <div class="offer-details">
-                    <p>Usuario: {{ oferta.nombre_usuario }}</p>
-                    <p>Oferta: {{ oferta.preu_ofert }}€</p>
-                    <p>Estado: {{ oferta.estat }}</p>
-                    <p>Fecha: {{ oferta.data }}</p>
-                    
-                    {% if oferta.estat == 'Pendent' %}
-                        <form action="{{ url_for('aceptar_oferta', cotxe_id=cotxe.id, usuari_id=oferta.usuari_id) }}" method="POST">
-                            <button type="submit">Aceptar Oferta</button>
-                        </form>
-                    {% endif %}
-                </div>
-            </li>
-        {% else %}
-            <li>No hay ofertas para este coche.</li>
+            <div class="card">
+                <p>Usuario: {{ oferta.nombre_usuario }}</p>
+                <p>Oferta: {{ oferta.preu_ofert }}€</p>
+                <p>Estado: {{ oferta.estat }}</p>
+                <p>Fecha: {{ oferta.data }}</p>
+                
+                {% if is_seller and oferta.estat == 'Pendent' %}
+                    <form action="{{ url_for('aceptar_oferta', cotxe_id=cotxe.id, usuari_id=oferta.usuari_id) }}" method="POST">
+                        <button type="submit">Aceptar Oferta</button>
+                    </form>
+                {% endif %}
+            </div>
         {% endfor %}
-    </ul>
-
-    <br>
-    <a href="/anuncios">Volver a la lista de anuncios</a><br>
-    <a href="/">Volver a la página principal</a>
-</body>
-</html>
+    {% else %}
+        <p>No hay ofertas para este coche.</p>
+    {% endif %}
+</div>
+{% endblock %}

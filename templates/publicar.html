@@ -1,41 +1,98 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicar Anuncio</title>
-    <link rel="stylesheet" href="../static/styles.css"> 
-</head>
-<body>
-    <div class="container">
-        <h1>Publicar un nuevo anuncio</h1>
-        <form action="/publicar" method="POST">
-            <label for="tipo">Tipo de coche:</label>
-            <select id="tipo" name="tipo" required>
-                <option value="electrico">Eléctrico</option>
-                <option value="hibrido">Híbrido</option>
-                <option value="normal">Gasolina / Diesel</option>
+{% extends "base.html" %}
+
+{% block title %}Publicar Anuncio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Publicar un nuevo anuncio</h1>
+    <form action="/publicar" method="POST">
+        <label for="tipo">Tipo de coche:</label>
+        <select id="tipo" name="tipo" required onchange="toggleFields()">
+            <option value="electrico">Eléctrico</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="normal">Gasolina / Diesel</option>
+        </select>
+
+        <div id="combustion-type" style="display: none;">
+            <label for="combustible_tipo">Combustible:</label>
+            <select id="combustible_tipo" name="combustible_tipo">
+                <option value="Gasolina">Gasolina</option>
+                <option value="Diesel">Diesel</option>
             </select>
+        </div>
 
-            <label for="marca">Marca:</label>
-            <input type="text" id="marca" name="marca" required>
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" name="marca" required>
 
-            <label for="modelo">Modelo:</label>
-            <input type="text" id="modelo" name="modelo" required>
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" name="modelo" required>
 
-            <label for="precio">Precio:</label>
-            <input type="number" id="precio" name="precio" required>
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" name="precio" required min="0">
 
-            <label for="año">Año:</label>
-            <input type="number" id="any" name="any" required>
-           
-            <label>¿Está en oferta?</label>
-            <input type="checkbox" name="oferta" value="si""> Sí
+        <label for="any">Año:</label>
+        <input type="number" id="any" name="any" required min="1900" max="2025">
 
-            <button type="submit" class="back-link">Publicar Anuncio</button> 
-        </form>
+        <!-- Common environmental fields -->
+        <div class="form-section">
+            <h2>Impacto Ambiental</h2>
+            
+            <div id="combustion-fields">
+                <label for="eficiencia_combustible">Eficiencia (L/100km):</label>
+                <input type="number" id="eficiencia_combustible" name="eficiencia_combustible" step="0.1" min="0">
+                
+                <label for="emisiones_co2">Emisiones CO2 (g/km):</label>
+                <input type="number" id="emisiones_co2" name="emisiones_co2" step="0.1" min="0">
+            </div>
+        </div>
+        
+        <!-- Electric/Hybrid specific fields -->
+        <div id="electric-fields" class="form-section">
+            <h2>Información de Batería</h2>
+            
+            <label for="capacidad_bateria">Capacidad batería (kWh):</label>
+            <input type="number" id="capacidad_bateria" name="capacidad_bateria" step="0.1" min="0">
+            
+            <label for="tiempo_carga">Tiempo de carga completa (minutos):</label>
+            <input type="number" id="tiempo_carga" name="tiempo_carga" min="0">
+            
+            <label for="salud_bateria">Salud de la batería (%):</label>
+            <input type="range" id="salud_bateria" name="salud_bateria" min="0" max="100" value="100" oninput="updateBatteryHealth()">
+            <span id="battery-value">100%</span>
+        </div>
 
-        <a href="/" class="back-link">Página principal</a>
-    </div>
-</body>
-</html>
+        <label>¿Está en oferta?</label>
+        <input type="checkbox" name="oferta" value="si"> Sí
+
+        <button type="submit" class="publish-btn">Publicar Anuncio</button> 
+    </form>
+</div>
+
+<script>
+    function toggleFields() {
+        const tipo = document.getElementById('tipo').value;
+        const electricFields = document.getElementById('electric-fields');
+        const combustionType = document.getElementById('combustion-type');
+        
+        // Show/hide fields based on car type
+        if (tipo === 'normal') {
+            electricFields.style.display = 'none';
+            combustionType.style.display = 'block';
+        } else if (tipo === 'electrico') {
+            electricFields.style.display = 'block';
+            combustionType.style.display = 'none';
+        } else { // híbrido
+            electricFields.style.display = 'block';
+            combustionType.style.display = 'block';
+        }
+    }
+    
+    function updateBatteryHealth() {
+        const value = document.getElementById('salud_bateria').value;
+        document.getElementById('battery-value').textContent = value + '%';
+    }
+    
+    // Initialize fields on page load
+    document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+{% endblock %}

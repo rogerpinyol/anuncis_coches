@@ -86,6 +86,20 @@ class MongoDB:
             upsert=True
         )
     
+    def add_initial_price(self, cotxe_id, precio):
+        """Add initial price to history when car is published."""
+        now = datetime.now(timezone.utc)
+        
+        self.db.historial_preus.update_one(
+            {'cotxe_id': cotxe_id},
+            {'$push': {'preus': {
+                'data': now,
+                'preu': precio,
+                'tipo': 'Precio inicial'
+            }}},
+            upsert=True
+        )
+    
     def get_preu_history(self, cotxe_id):
         doc = self.db.historial_preus.find_one({'cotxe_id': cotxe_id})
         return doc['preus'] if doc else []

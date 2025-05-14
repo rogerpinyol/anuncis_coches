@@ -1,58 +1,76 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/anuncis.css">
-    <title>Lista de Anuncios</title>
-</head>
-<body>
-    <h1>Lista de anuncios</h1>
+{% extends "base.html" %}
+
+{% block title %}Lista de Anuncios{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Lista de Anuncios</h1>
 
     <!-- Formulario de búsqueda -->
-    <form action="/buscar" method="GET" class="search-container">
-        <label for="marca">Marca:</label>
-        <input type="text" id="marca" name="marca">
-        
-        <label for="modelo">Modelo:</label>
-        <input type="text" id="modelo" name="modelo">
-        
-        <label for="precio">Precio máximo:</label>
-        <input type="number" id="precio" name="precio">
-        
-        <label for="any">Año:</label>
-        <input type="number" id="any" name="any">
-        
-        <button type="submit">Buscar</button>
-    </form>
+    <div class="search-card">
+        <form action="{{ url_for('buscar') }}" method="GET" class="search-container">
+            <div class="search-grid">
+                <div class="search-item">
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" name="marca">
+                </div>
+                
+                <div class="search-item">
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" name="modelo">
+                </div>
+                
+                <div class="search-item">
+                    <label for="precio">Precio máximo:</label>
+                    <input type="number" id="precio" name="precio">
+                </div>
+                
+                <div class="search-item">
+                    <label for="any">Año:</label>
+                    <input type="number" id="any" name="any">
+                </div>
+            </div>
+            <button type="submit" class="search-button">Buscar</button>
+        </form>
+    </div>
 
     <div class="anuncios-container">
-        <ul>
+        {% if anuncios %}
             {% for anuncio in anuncios %}
-                <li>
-                    <div>Tipo: {{ anuncio.tipus }}, Marca: {{ anuncio.marca }}, Modelo: {{ anuncio.model }}, 
-                        Precio: {{ anuncio.preu }}€, Año: {{ anuncio.any }}, {{ anuncio.mostrar_informacion() }}</div>
+                <div class="anuncio-card">
+                    <div class="anuncio-info">
+                        <h3>
+                            <a href="{{ url_for('detalle_coche', cotxe_id=anuncio.id) }}">
+                                {{ anuncio.marca }} {{ anuncio.model }}
+                            </a>
+                        </h3>
+                        <div class="anuncio-details">
+                            <p><strong>Tipo:</strong> {{ anuncio.tipus }}</p>
+                            <p><strong>Precio:</strong> {{ anuncio.preu }}€</p>
+                            <p><strong>Año:</strong> {{ anuncio.any }}</p>
+                            <p class="tipo-info">{{ anuncio.mostrar_informacion() }}</p>
+                        </div>
+                    </div>
                     
                     <div class="actions">
-                        <form action="{{ url_for('add_favorito', cotxe_id=anuncio.id) }}" method="POST">
-                            <button type="submit">Añadir a favoritos</button>
-                        </form>
-                        <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}">Hacer oferta</a>
-                        <a href="{{ url_for('ver_ofertas', cotxe_id=anuncio.id) }}">Ver ofertas</a>
-                        <a href="{{ url_for('comentarios', cotxe_id=anuncio.id) }}">Comentarios</a>
-                        <a href="{{ url_for('historial_precios', cotxe_id=anuncio.id) }}">Historial de precios</a>
+                        {% if 'user_id' in session %}
+                            <form action="{{ url_for('add_favorito', cotxe_id=anuncio.id) }}" method="POST">
+                                <button type="submit" class="action-button favorite">⭐ Añadir a favoritos</button>
+                            </form>
+                            {% if session['user_id'] != anuncio.venedor_id %}
+                                <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}" class="action-button offer">💰 Hacer oferta</a>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{{ url_for('ver_ofertas', cotxe_id=anuncio.id) }}" class="action-button">📊 Ver ofertas</a>
+                        <a href="{{ url_for('historial_precios', cotxe_id=anuncio.id) }}" class="action-button">📈 Historial</a>
                     </div>
-                </li>
-            {% else %}
-                <li>No hay anuncios publicados.</li>
+                </div>
             {% endfor %}
-        </ul>
+        {% else %}
+            <div class="empty-state">
+                <p>No hay anuncios publicados.</p>
+            </div>
+        {% endif %}
     </div>
-
-    <div class="links-container">
-        <a href="/favoritos">Ver mis favoritos</a>
-        <a href="/publicar">Publicar un nuevo anuncio</a>
-        <a href="/">Volver a la página principal</a>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}

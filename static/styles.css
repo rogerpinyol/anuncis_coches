@@ -12,6 +12,8 @@ body {
     flex-direction: column;
     align-items: center;
     transition: background-color 0.3s;
+    padding-top: 80px; /* Space for fixed navbar */
+    min-height: 100vh;
 }  
 
 h1 {  
@@ -34,9 +36,124 @@ h1 {
     }
 }
 
+/* Navigation styles */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 31, 63, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* User menu dropdown */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-name {
+    padding: 0.5rem 1rem;
+    color: white;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: rgba(0, 31, 63, 0.95);
+    backdrop-filter: blur(10px);
+    min-width: 200px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.user-menu:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0;
+}
+
+/* Enhanced User Menu Styles */
+.user-info {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.user-fullname {
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+}
+
+.user-role {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
 /* ----- Contenedor del formulario ----- */  
 .container {  
-    max-width: 700px;  
+    max-width: 1200px;
     width: 100%;
     background: rgba(255, 255, 255, 0.1);  
     padding: 30px;  
@@ -45,17 +162,49 @@ h1 {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     animation: fadeIn 0.8s ease-in-out; 
+    margin: 0 auto;
 }  
 
+/* Remove general form styles that might interfere */
 form {  
-    padding: 30px;  
-    border-radius: 10px;  
-    transition: box-shadow 0.3s;
+    padding: 0;  /* Remove default padding */
+    margin: 0;   /* Remove default margin */
+    border-radius: 0;  /* Remove border radius */
+    background: none;
 }  
 
 form:hover {  
-    box-shadow: 0 12px 40px rgba(0, 183, 255, 0.5);  
+    box-shadow: none; /* Remove hover box-shadow */
 }  
+
+/* Specific styles for favorite button form */
+form[action*="add_favorito"] {
+    flex: 1 1 calc(50% - 0.5rem); /* Match action-button flex */
+    display: flex; /* Enable flex for proper button sizing */
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+form[action*="add_favorito"] button {
+    flex: 1; /* Take full width of flex container */
+    margin: 0;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #ff9900, #ff6600);
+    height: 100%; /* Match height with other buttons */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form[action*="add_favorito"] button:hover {
+    background: linear-gradient(135deg, #ff8800, #ff5500);
+    box-shadow: none;
+}
 
 /* ----- Estilo de los campos del formulario ----- */  
 input[type="text"],  
@@ -170,4 +319,479 @@ h2 {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(0, 183, 255, 0.5);
     background: linear-gradient(to right, #00c6ff, #0072ff);
+}
+
+/* ----- Flash message styles ----- */
+.flash-message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Flash messages adjustment */
+.flash-messages {
+    position: fixed;
+    top: 80px; /* Below navbar */
+    right: 20px;
+    z-index: 999;
+    max-width: 300px;
+}
+
+/* Anuncios page specific styles */
+.search-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.search-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.anuncios-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* Container for the entire card */
+.anuncio-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.anuncio-card:hover {
+    transform: translateY(-5px);
+}
+
+.anuncio-info h3 {
+    margin: 0 0 1rem 0;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.anuncio-info h3 a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.anuncio-info h3 a:hover {
+    color: #00c6ff;
+    text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+}
+
+.anuncio-details {
+    margin-bottom: 1.5rem;
+}
+
+.anuncio-details p {
+    margin: 0.5rem 0;
+}
+
+.tipo-info {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Actions container */
+.actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    align-items: stretch;
+}
+
+.action-button,
+form[action*="add_favorito"] {
+    height: 38px;
+    margin: 0;
+    display: flex;
+}
+
+.action-button {
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+form[action*="add_favorito"] button {
+    width: 100%;
+    background: linear-gradient(135deg, #ff9900, #ff6600);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.action-button.offer {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+/* Hover effects */
+.action-button:hover,
+form[action*="add_favorito"] button:hover {
+    transform: translateY(-2px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    grid-column: 1 / -1;
+}
+
+/* Main content adjustments */
+.main-content {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Car Detail Page Styles */
+.car-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.car-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Style for favorite button in header */
+.favorite-form {
+    margin: 0;
+    padding: 0;
+}
+
+.favorite-form button {
+    background: linear-gradient(135deg, #ff9900, #ff6600) !important;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.favorite-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5);
+}
+
+/* Remove general button styles for the header favorite button */
+.car-header .favorite-form button {
+    width: auto;
+    height: auto;
+    min-height: unset;
+    max-height: unset;
+}
+
+/* Make the car type badge consistent with header layout */
+.car-type {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+.car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.info-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.info-card p {
+    margin: 0.5rem 0;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Battery health indicator */
+.battery-health {
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(to right, #ff6b6b, #4ecdc4);
+    transition: width 0.3s ease;
+}
+
+/* Actions section */
+.actions-card .actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    width: 100%;
+}
+
+/* Reset any conflicting styles from regular .actions */
+.info-card.actions-card {
+    padding-bottom: 1.5rem;
+}
+
+/* Consistent button styling */
+.actions-card .action-button,
+.actions-card form[action*="add_favorito"] {
+    height: 40px;
+    min-height: 40px;
+    margin: 0;
+    display: flex;
+    width: 100%;
+}
+
+.actions-card .action-button {
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.actions-card form[action*="add_favorito"] button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #ff9900, #ff6600);
+    color: white;
+    cursor: pointer;
+}
+
+.actions-card .action-button.offer {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.actions-card .action-button:hover,
+.actions-card form[action*="add_favorito"] button:hover {
+    transform: translateY(-2px);
+}
+
+/* Actions styling for anuncios page */
+.anuncio-card .actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* Make sure ALL grid items have identical sizing */
+.anuncio-card .actions > * {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+}
+
+/* Ensure form fills its grid cell exactly */
+.anuncio-card form[action*="add_favorito"] {
+    margin: 0;
+    padding: 0;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* Force the button to fill the form container completely */
+.anuncio-card form[action*="add_favorito"] button {
+    flex: 1 1 auto;
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 0.5rem !important;
+    box-sizing: border-box !important;
+    font-size: 0.9rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, #ff9900, #ff6600) !important;
+    border: none !important;
+    border-radius: 5px !important;
+    color: white !important;
+}
+
+/* Make anchors match buttons */
+.anuncio-card .action-button {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 0.5rem !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+/* Override general button styles for forms in action containers */
+.actions button {
+    background: linear-gradient(135deg, #ff9900, #ff6600) !important;
+    margin: 0 !important;
+    padding: 0.5rem !important;
+}
+
+/* Interaction sections layout */
+.interaction-sections {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.offers-section, 
+.comments-section {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+/* Section header actions */
+.section-header .action-button {
+    width: auto;
+    padding: 0.5rem 1rem;
+    flex-shrink: 0;
+}
+
+/* Make sure the h2 doesn't push the button too far */
+.section-header h2 {
+    margin: 0;
+    flex: 1;
+}
+
+.offers-list,
+.comments-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.offer-card,
+.comment-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.comment-form {
+    margin: 1rem 0;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: white;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    resize: none; /* Prevent user resizing */
+}
+
+/* Make layout responsive */
+@media (max-width: 768px) {
+    .interaction-sections {
+        grid-template-columns: 1fr;
+    }
 }

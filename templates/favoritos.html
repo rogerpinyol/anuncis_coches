@@ -16,7 +16,6 @@
                 Precio: {{ anuncio.preu }}€, Año: {{ anuncio.any }}, {{ anuncio.mostrar_informacion() }}
                 <div class="actions">
                     <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}">Hacer oferta</a>
-                    <a href="{{ url_for('comentarios', cotxe_id=anuncio.id) }}">Ver comentarios</a>
                     <a href="{{ url_for('historial_precios', cotxe_id=anuncio.id) }}">Historial de precios</a>
                 </div>
             </li>

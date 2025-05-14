@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Car Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-content">
+            <a href="{{ url_for('index') }}" class="logo">🚗 Car Marketplace</a>
+            <div class="nav-links">
+                <a href="{{ url_for('anuncios') }}">🔍 Anuncios</a>
+                {% if 'user_id' in session %}
+                    <div class="user-menu">
+                        <span class="user-name">👤 {{ session.get('user_nom', 'Mi Cuenta') }}</span>
+                        <div class="dropdown-content">
+                            <div class="user-info">
+                                <p class="user-fullname">{{ session.get('user_nom', 'Usuario') }}</p>
+                                <p class="user-role">{{ session.get('user_tipus', 'Usuario') }}</p>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('ver_favoritos') }}">⭐ Mis Favoritos</a>
+                            {% if session.get('user_tipus') == 'Venedor' %}
+                                <a href="{{ url_for('publicar') }}">📝 Publicar Anuncio</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.logout') }}">🚪 Cerrar Sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">🔑 Iniciar Sesión</a>
+                    <a href="{{ url_for('auth.register') }}">📝 Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Car Marketplace</p>
+    </footer>
+</body>
+</html>
