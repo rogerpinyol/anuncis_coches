@@ -417,9 +417,9 @@ def get_charging_stations():
         'countrycode': 'ES',
         'latitude': lat,
         'longitude': lng,
-        'distance': 10,
+        'distance': 20,
         'distanceunit': 'KM',
-        'maxresults': 20,
+        'maxresults': 40,
         'compact': True,
         'verbose': False,
         'key': api_key

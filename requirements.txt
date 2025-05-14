@@ -6,3 +6,4 @@ cryptography
 pymongo
 python-dotenv
 flask-migrate
+requests
