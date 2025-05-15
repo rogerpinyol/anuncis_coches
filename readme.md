@@ -7,6 +7,7 @@ L'aplicació dels meus companys que he hagut de modificar estava realment molt b
 - No hi havia readme.md. En un entorn de treball s'hauria d'especificar en que consisteix l'aplicació, algunes de les seves característiques i tecnologies clau i com s'utilitza.
 - No havia fitxer de dependències ni de posada en marxa de l'aplicació. És un gran problema si es una gran aplicació perquè has de mirar manualment de quines llibreries requereix i en el cas de que no sigui un simple executable; com és el cas, pot causar confusió als usuaris finals que no tenen coneixements tècnics.
 - L'aplicació tenia features que encara no eren funcionals pero estaven parcialment integrades, com ara l'implementació d'usuaris i els descomptes/ofertes, que estaven a un preu fix (21%). S'hagués pogut comentar per a ajudar a identificar-ho.
+- Els idiomes estaven mesclats, una mica de català i una mica de castellà. Això m'ha donat molts problemes a l'hora de fer modificacions perquè havien algunes funcions que estaven en català i altres relacionades amb elles que estaven en castellà. He intentat estandaritzar algun dels idiomes però em generava massa confusió i al final he hagut de fer el codi "bilingüe"
 
 ## Implementació de les BBDD i ORM
 He implementat les bases de dades relacionals i no relacionals tal i com s'indica a l'enunciat.
