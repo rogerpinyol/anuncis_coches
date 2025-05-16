@@ -1,6 +1,12 @@
-# Docmentació compra-venda de cotxes
+# Documentació compra-venda de cotxes
 
 # Índex
+- [Estat Inicial](#estat-inicial)
+- [Implementació de les BBDD i ORM](#implementació-de-les-bbdd-i-orm)
+- [Què és un ORM?](#què-és-un-orm)
+- [Canvis fets (Frontend)](#canvis-fets-frontend)
+- [Canvis fets (Backend)](#canvis-fets-backend)
+- [Extensions afegides](#extensions-afegides)
 
 ## Estat Inicial
 L'aplicació dels meus companys que he hagut de modificar estava realment molt ben feta, sobretot la part visual, la qual pràcticament no he tocat si no ha sigut per aplicar-la a les noves *features*, i estava en forma modular, de manera que cada template te el seu propi CSS assignat. Tot i això, hi havien algunes coses millorables:
@@ -12,18 +18,20 @@ L'aplicació dels meus companys que he hagut de modificar estava realment molt b
 ## Implementació de les BBDD i ORM
 He implementat les bases de dades relacionals i no relacionals tal i com s'indica a l'enunciat.
 
-![taules sql](documentacio/sql.png)<br>
+![taules sql](documentacio/sql.png)
 *Mostra taules i columnes SQL*
 
-![mongo collections](documentacio/mongo_cols.png)<br>
-*Col·lecions de Mongo*
+![mongo collections](documentacio/mongo_cols.png)
+*Col·leccions de MongoDB: favorits, comentaris, historial_preus, ofertes*
 
-![mongo documents](documentacio/mongo_docs.png)<br>
-*Exemple de documents de Mongo*
+![mongo documents](documentacio/mongo_docs.png)
+*Exemple de documents de MongoDB*
+
+> Les imatges anteriors mostren l'estructura de les BBDD utilitzades: MariaDB per a la informació estructurada (usuaris, cotxes, transaccions) i MongoDB per a dades dinàmiques (favorits, comentaris, historial de preus, ofertes).
 
 ### (Explicació dels motius de SQL i MongoDB aquí)
 
-### Què és un ORM?
+## Què és un ORM?
 Un ORM (Object-Relational Mapping, o Mapeig Objecte-Relacional) és una tècnica de programació que permet interactuar amb una base de dades relacional (com MariaDB, MySQL o PostgreSQL) utilitzant objectes de programació en lloc de consultes SQL directes. En essència, un ORM actua com un pont entre el codi de l'aplicació (normalment escrit en un llenguatge com Python) i la base de dades, traduint operacions sobre objectes en consultes SQL i viceversa.
 
 Un ORM, essencialment, ens proporciona les següents avantatges:
@@ -48,37 +56,70 @@ La raó principal és perquè simplement volia aprendre a utilizar-lo ja que és
 
 ## Canvis fets (Frontend)
 
-### Anuncis Home 
-Abans els anuncis eren només línies de text. Els he aplicat un estil de cuadrícula mostrant els detalls més importants i amb els botons d'acció necessaris (favorits, ofertes, historial, ) que no tots son visibles si no has iniciat sessió. També he afegit una barra de navegació superior 
-![anuncis home](documentacio/anuncios_home.png)<br>
+### Anuncis Home
+Abans els anuncis eren només línies de text. Ara s'ha implementat una visualització en forma de graella (grid) amb targetes per a cada cotxe, mostrant els detalls més importants i amb botons d'acció (favorits, ofertes, historial). Els botons d'acció només són visibles si l'usuari ha iniciat sessió.
+
+![anuncis home](documentacio/anuncios_home.png)
 *Anuncis sense iniciar sessió*
 
-![anuncis home logged](documentacio/anuncios_home_logged.png)<br>
-*Anuncis quan has iniciat sessió*
+![anuncis home logged](documentacio/anuncios_home_logged.png)
+*Anuncis quan has iniciat sessió (es mostren més accions)*
 
-També, per a gestionar els comptes, clicant al nostre perfil podem accedir de manera ràpida a les accions que tenim permeses segons el rol.
-![my account](documentacio/my_account.png)<br>
-*El meu compte*
+La barra de navegació superior permet accedir ràpidament a les diferents seccions de l'aplicació. El menú d'usuari mostra accions específiques segons el rol (comprador/venedor):
+
+![my account](documentacio/my_account.png)
+*El meu compte: accés ràpid a funcionalitats segons el rol*
+
+#### Altres millores visuals i funcionals:
+- Formulari de cerca avançada per marca, model, preu i any.
+- Indicadors visuals per a cotxes venuts i estat de les ofertes.
+- Barra de salut de bateria per a elèctrics/híbrids (veure exemple a `detalles_electrico1.png`).
 
 ## Canvis fets (Backend)
-S'han afegit tots els nous camps que poden tenir els cotxes com a models per al ORM. S'han implementat sistemes d'encriptació, CORS per a utilitzar l'API del mapa.
+S'han afegit tots els nous camps que poden tenir els cotxes com a models per al ORM (veure `models.py`). S'han implementat sistemes d'encriptació de contrasenyes, CORS per a utilitzar l'API del mapa, i gestió d'usuaris amb rols diferenciats.
 
 ## Extensions afegides
 
 ### Nous camps per als cotxes
-S'han afegit els següents camps:
-- Capacitat de bateria en kWh per als cotxes electrics i hibrids
-- Temps de carrega
+S'han afegit els següents camps (veure codi a `models.py` i formularis de publicació):
+- Capacitat de bateria en kWh per als cotxes elèctrics i híbrids
+- Temps de càrrega
 - Eficiència de combustible per a híbrids (L/100km)
 - Emissions CO2 (g/km)
 
 ### Sistema d'usuaris
-Necessari per poder emmagatzemar el tipus d'usuaris (Comprador/Venedor). Les contrassenyes es guarden de forma encriptada a la BBDD SQL.
+Necessari per poder emmagatzemar el tipus d'usuaris (Comprador/Venedor). Les contrasenyes es guarden de forma encriptada a la BBDD SQL.
 
-### Afegit indicador de salut de bateria 
+### Afegit indicador de salut de bateria
 Es mostra de manera automàtica als cotxes híbrids i elèctrics en forma de barra de percentatge.
 
-### Integració de mapa d'estacions de càrrega compatibles amb estandards_carrega mitjançant 
-Utilizo l'API de [OpenChargeMap](https://openchargemap.io) per a mostrar les estacions de càrrega compatibles amb l'estàndard del vehicle en forma de mapa. Només es mostra en coches elèctrics ja que la resta no necessiten d'estació de càrrega.
+![detall cotxe elèctric](documentacio/detalles_electrico1.png)
+*Exemple de barra de salut de bateria en un cotxe elèctric*
 
-### 
+### Integració de mapa d'estacions de càrrega compatibles
+Utilitzo l'API de [OpenChargeMap](https://openchargemap.io) per a mostrar les estacions de càrrega compatibles amb l'estàndard del vehicle en forma de mapa. Només es mostra en cotxes elèctrics ja que la resta no necessiten d'estació de càrrega.
+
+### Historial de preus i sistema d'ofertes
+Cada cotxe té un historial de preus (MongoDB) i es poden fer ofertes, acceptar-les o rebutjar-les. El sistema d'ofertes i historial es mostra amb gràfics i llistats:
+
+![historial preus](documentacio/historial_precios.png)
+*Historial de preus d'un cotxe*
+
+![fer oferta](documentacio/hacer_oferta.png)
+*Formulari per fer una oferta*
+
+![oferta acceptada](documentacio/oferta_aceptada1.png)
+*Exemple d'oferta acceptada*
+
+### Gestió de favorits i comentaris
+Els usuaris poden afegir cotxes a favorits i deixar comentaris, tot gestionat amb MongoDB:
+
+![favorits](documentacio/mis_favoritos.png)
+*Llistat de cotxes favorits d'un usuari*
+
+![comentari test](documentacio/test_comentario.png)
+*Exemple de comentari en un anunci*
+
+---
+
+> Totes les funcionalitats i canvis han estat documentats amb captures de pantalla a la carpeta `documentacio/` i referenciats en aquest document. Per a més detalls tècnics, consulteu els fitxers `models.py`, `app.py`, `mongo_db.py` i les plantilles HTML.
