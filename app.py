@@ -294,6 +294,11 @@ def ver_favoritos():
 def hacer_oferta(cotxe_id):
     cotxe = Cotxe.query.get_or_404(cotxe_id)
     
+    # Check if car is already sold
+    if cotxe.venut:
+        flash("Este coche ya ha sido vendido")
+        return redirect(url_for('anuncios'))
+    
     # Check if user is trying to make an offer on their own car
     if cotxe.venedor_id == session['user_id']:
         flash("No puedes hacer ofertas en tus propios anuncios")
@@ -342,6 +347,9 @@ def aceptar_oferta(cotxe_id, usuari_id):
         # Update offer status
         mongo.update_oferta_status(cotxe_id, usuari_id, 'Acceptada')
         
+        # Mark car as sold
+        cotxe.venut = True
+        
         # Create transaction
         transaccion = Transaccion(
             comprador_id=usuari_id,
@@ -365,13 +373,11 @@ def historial_precios(cotxe_id):
     # Format dates
     for item in historial:
         if 'data' in item and item['data']:
-            # Handle string dates or datetime objects
             if isinstance(item['data'], str):
                 try:
                     date_obj = datetime.fromisoformat(item['data'].replace('Z', '+00:00'))
                     item['data'] = date_obj.strftime("%d/%m/%Y %H:%M")
                 except ValueError:
-                    # If date format is not ISO
                     pass
             else:
                 item['data'] = item['data'].strftime("%d/%m/%Y %H:%M")

@@ -6,6 +6,9 @@
 <div class="car-detail-container">
     <div class="car-header">
         <h1>{{ cotxe.marca }} {{ cotxe.model }}</h1>
+        {% if cotxe.venut %}
+            <div class="sold-badge">VENDIDO</div>
+        {% endif %}
         <div class="header-actions">
             <span class="car-type">{{ cotxe.tipus }}</span>
             {% if 'user_id' in session %}
@@ -86,7 +89,7 @@
         <div class="info-card offers-section">
             <div class="section-header">
                 <h2>Ofertas</h2>
-                {% if 'user_id' in session and session['user_id'] != cotxe.venedor_id %}
+                {% if 'user_id' in session and session['user_id'] != cotxe.venedor_id and not cotxe.venut %}
                     <a href="{{ url_for('hacer_oferta', cotxe_id=cotxe.id) }}" class="action-button offer">💰 Hacer oferta</a>
                 {% endif %}
             </div>

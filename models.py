@@ -39,6 +39,8 @@ class Cotxe(db.Model):
     # Discriminator column
     type = db.Column(db.String(20))
     
+    venut = db.Column(db.Boolean, default=False)  # Add this field
+    
     __mapper_args__ = {
         'polymorphic_on': type,
         'polymorphic_identity': 'cotxe'

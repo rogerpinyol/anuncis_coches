@@ -37,7 +37,7 @@
     <div class="anuncios-container">
         {% if anuncios %}
             {% for anuncio in anuncios %}
-                <div class="anuncio-card">
+                <div class="anuncio-card {% if anuncio.venut %}sold{% endif %}">
                     <div class="anuncio-info">
                         <h3>
                             <a href="{{ url_for('detalle_coche', cotxe_id=anuncio.id) }}">
@@ -53,11 +53,11 @@
                     </div>
                     
                     <div class="actions">
-                        {% if 'user_id' in session %}
-                            <form action="{{ url_for('add_favorito', cotxe_id=anuncio.id) }}" method="POST">
-                                <button type="submit" class="action-button favorite">⭐ Añadir a favoritos</button>
-                            </form>
+                        {% if 'user_id' in session and not anuncio.venut %}
                             {% if session['user_id'] != anuncio.venedor_id %}
+                                <form action="{{ url_for('add_favorito', cotxe_id=anuncio.id) }}" method="POST">
+                                    <button type="submit" class="action-button favorite">⭐ Añadir a favoritos</button>
+                                </form>
                                 <a href="{{ url_for('hacer_oferta', cotxe_id=anuncio.id) }}" class="action-button offer">💰 Hacer oferta</a>
                             {% endif %}
                         {% endif %}
