@@ -2,11 +2,13 @@
 
 # Índex
 - [Estat Inicial](#estat-inicial)
+- [Requeriments i ús](#requeriments-i-ús)
 - [Implementació de les BBDD i ORM](#implementació-de-les-bbdd-i-orm)
 - [Què és un ORM?](#què-és-un-orm)
 - [Canvis fets (Frontend)](#canvis-fets-frontend)
 - [Canvis fets (Backend)](#canvis-fets-backend)
 - [Extensions afegides](#extensions-afegides)
+- [Conclusions i notes](#conclusions-i-notes)
 
 ## Estat Inicial
 L'aplicació dels meus companys que he hagut de modificar estava realment molt ben feta, sobretot la part visual, la qual pràcticament no he tocat si no ha sigut per aplicar-la a les noves *features*, i estava en forma modular, de manera que cada template te el seu propi CSS assignat. Tot i això, hi havien algunes coses millorables:
@@ -14,6 +16,15 @@ L'aplicació dels meus companys que he hagut de modificar estava realment molt b
 - No havia fitxer de dependències ni de posada en marxa de l'aplicació. És un gran problema si es una gran aplicació perquè has de mirar manualment de quines llibreries requereix i en el cas de que no sigui un simple executable; com és el cas, pot causar confusió als usuaris finals que no tenen coneixements tècnics.
 - L'aplicació tenia features que encara no eren funcionals pero estaven parcialment integrades, com ara l'implementació d'usuaris i els descomptes/ofertes, que estaven a un preu fix (21%). S'hagués pogut comentar per a ajudar a identificar-ho.
 - Els idiomes estaven mesclats, una mica de català i una mica de castellà. Això m'ha donat molts problemes a l'hora de fer modificacions perquè havien algunes funcions que estaven en català i altres relacionades amb elles que estaven en castellà. He intentat estandaritzar algun dels idiomes però em generava massa confusió i al final he hagut de fer el codi "bilingüe"
+
+## Requeriments i ús
+Per a poder utilitzar l'aplicació web de forma correcta, s'ha de crear un entorn virtual en Python 3.11+ amb `python3 -m venv` (ruta) i activar-lo depenent del sistema operatiu que estiguis utilitzant. Una vegada activat, instal·lar els requeriemnents amb `pip install -r requirements.txt`. També hauras de crear un fitxer *.env* a la ruta arrel del projecte amb les cadenes de connexió necessaries per utilitzar MariaDB i MongoDB, amb les següents variables:
+- **DATABASE_URL**=ruta_db_sql
+- **MONGO_URI**=ruta_cluster_mongodb
+- **MONGO_DB**=nom_db_mongodb
+- **OPENCHARGE_API_KEY**=clau_opencharge.io *Opcional però recomanat*
+
+Una vegada dins de la web, **activa** el permís d'accés a l'ubicació per a que l'API del mapa funcioni correctament.
 
 ## Implementació de les BBDD i ORM
 He implementat les bases de dades relacionals i no relacionals tal i com s'indica a l'enunciat.
@@ -123,3 +134,16 @@ Els usuaris poden afegir cotxes a favorits i deixar comentaris, tot gestionat am
 ---
 
 > Totes les funcionalitats i canvis han estat documentats amb captures de pantalla a la carpeta `documentacio/` i referenciats en aquest document. Per a més detalls tècnics, consulteu els fitxers `models.py`, `app.py`, `mongo_db.py` i les plantilles HTML.
+
+## Conclusions i notes
+El projecte ha evolucionat significativament des de la seva versió inicial, tant a nivell visual com funcional i tècnic. S’ha aconseguit una aplicació web robusta, moderna i fàcil d’utilitzar, que integra tant bases de dades relacionals (MariaDB) com no relacionals (MongoDB) per gestionar de manera eficient la informació estructurada i dinàmica.
+
+La incorporació d’un sistema d’usuaris amb rols diferenciats (comprador/venedor), la gestió segura de contrasenyes, l’historial de preus, el sistema d’ofertes i favorits, així com la integració d’APIs externes com OpenChargeMap, han aportat un gran valor afegit a l’experiència d’usuari i a la funcionalitat global de l’aplicació.
+
+A nivell de codi, l’ús d’un ORM ha facilitat la gestió de la base de dades i ha fet el projecte més escalable i segur.
+
+En resum, el projecte compleix amb els requisits plantejats i ofereix una base sòlida per a futures millores, com ara la implementació de notificacions, filtres avançats o adjustar les ofertes. El procés de desenvolupament ha estat una gran oportunitat per aprofundir en tecnologies clau del desenvolupament web modern i en bones pràctiques de programació.
+
+> ***Nota 1**: encara no entenc molt bé el sentit te tenir un historial de preus per a un servei de compra-venda P2P al ser una venda única, a no ser que es registre el model, any i marca del cotxe per a comparar amb un dataset més gran.*
+> ***Nota 2**: les dades amb les que se m'ha entregat el projecte (data,json) es migren automàticament, inclús en cas d'afegir-ne de noves de forma manual al fitxer.*
+> ***Nota 3**: quan havia de modificar la BBDD relacional he descobert que amb el paquet de flask-migrate podia automatizar les modificacions fetes al ORM per a passar-les a la BBDD sense haver de trencar-me el cap.*
