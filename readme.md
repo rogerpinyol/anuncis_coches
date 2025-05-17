@@ -25,17 +25,18 @@ Per a poder utilitzar l'aplicació web de forma correcta, s'ha de crear un entor
 - **OPENCHARGE_API_KEY**=clau_opencharge.io *Opcional però recomanat*
 
 Una vegada dins de la web, **activa** el permís d'accés a l'ubicació per a que l'API del mapa funcioni correctament.
+Dins de la carpeta /documentacio es troben diverses imatges del projecte que poden no estar en aquest document perquè he cregut que no eren necessàries, pero es poden consultar en cas de necessitar-ho.
 
 ## Implementació de les BBDD i ORM
 He implementat les bases de dades relacionals i no relacionals tal i com s'indica a l'enunciat.
 
-![taules sql](documentacio/sql.png)
+![taules sql](documentacio/sql.png)<br>
 *Mostra taules i columnes SQL*
 
-![mongo collections](documentacio/mongo_cols.png)
+![mongo collections](documentacio/mongo_cols.png)<br>
 *Col·leccions de MongoDB: favorits, comentaris, historial_preus, ofertes*
 
-![mongo documents](documentacio/mongo_docs.png)
+![mongo documents](documentacio/mongo_docs.png)<br>
 *Exemple de documents de MongoDB*
 
 > Les imatges anteriors mostren l'estructura de les BBDD utilitzades: MariaDB per a la informació estructurada (usuaris, cotxes, transaccions) i MongoDB per a dades dinàmiques (favorits, comentaris, historial de preus, ofertes).
@@ -78,7 +79,7 @@ Abans els anuncis eren només línies de text. Ara s'ha implementat una visualit
 
 La barra de navegació superior permet accedir ràpidament a les diferents seccions de l'aplicació. El menú d'usuari mostra accions específiques segons el rol (comprador/venedor):
 
-![my account](documentacio/my_account.png)
+![my account](documentacio/my_account.png)<br>
 *El meu compte: accés ràpid a funcionalitats segons el rol*
 
 #### Altres millores visuals i funcionals:
@@ -125,7 +126,7 @@ Cada cotxe té un historial de preus (MongoDB) i es poden fer ofertes, acceptar-
 ### Gestió de favorits i comentaris
 Els usuaris poden afegir cotxes a favorits i deixar comentaris, tot gestionat amb MongoDB:
 
-![favorits](documentacio/mis_favoritos.png)
+![favorits](documentacio/mis_favoritos.png)<br>
 *Llistat de cotxes favorits d'un usuari*
 
 ![comentari test](documentacio/test_comentario.png)
@@ -145,5 +146,7 @@ A nivell de codi, l’ús d’un ORM ha facilitat la gestió de la base de dades
 En resum, el projecte compleix amb els requisits plantejats i ofereix una base sòlida per a futures millores, com ara la implementació de notificacions, filtres avançats o adjustar les ofertes. El procés de desenvolupament ha estat una gran oportunitat per aprofundir en tecnologies clau del desenvolupament web modern i en bones pràctiques de programació.
 
 > ***Nota 1**: encara no entenc molt bé el sentit te tenir un historial de preus per a un servei de compra-venda P2P al ser una venda única, a no ser que es registre el model, any i marca del cotxe per a comparar amb un dataset més gran.*
+
 > ***Nota 2**: les dades amb les que se m'ha entregat el projecte (data,json) es migren automàticament, inclús en cas d'afegir-ne de noves de forma manual al fitxer.*
+
 > ***Nota 3**: quan havia de modificar la BBDD relacional he descobert que amb el paquet de flask-migrate podia automatizar les modificacions fetes al ORM per a passar-les a la BBDD sense haver de trencar-me el cap.*
